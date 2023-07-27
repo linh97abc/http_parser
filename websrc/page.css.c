@@ -1,0 +1,1 @@
+char page_css[] = "html {\n    height: 100%;\n    margin: 0;\n    padding: 0;\n}\n\nbody {\n    margin: 0;\n    padding: 0;\n    height: 100%;\n    background-color: #f2f2f2;\n    /* background-color: #fafafa; */\n\n}\n\n/* .full-height {\n    height: 100%;\n} */\n\n.title {\n    margin-top: 0px;\n    padding-top: 8px;\n}";

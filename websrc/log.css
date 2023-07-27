@@ -1,0 +1,81 @@
+#log {
+    /* float: left; */
+    width: 28%;
+    /* overflow-y:scroll; */
+    height: 100%;
+    /* height: 95%; */
+    /* margin-left: 8px; */
+
+}
+
+#logContent
+{
+    margin-bottom: 16px;
+    height: 90%;
+    /* height: 90%; */
+    padding: 8px;
+    /* background: #FFFFFF; */
+    /* background: #fafafa; */
+    /* background: #e6e1e6; */
+    background: #EDEDF4;
+    overflow-x: hidden;
+    overflow-y:auto;
+    /* width: 100%; */
+    border-radius: 8px;
+}
+
+.logToolBtn {
+    height: 28px;
+    /* margin-left: 4px; */
+    cursor: pointer;
+    width: 48px;
+    border: none;
+    /* border: 1px solid; */
+    /* border-radius: 8px; */
+    /* background: #e0e2ec; */
+    background: inherit;
+}
+
+.logToolBtn:hover {
+    background: #e0e2ec;
+    /* box-shadow: 1px 4px 8px 2px rgba(0, 0, 0, 0.2); */
+}
+
+.logToolBtn:active {
+    /* background-color: #d8e3f8; */
+    box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2);
+    /* transform: translateY(1px); */
+}
+
+#logToolBox {
+    /* float: right; */
+    position: absolute;  
+    right: 20px;
+    margin-top: 8px;
+}
+
+#logToolPanel {
+    display: inline-flex;
+}
+
+.LogWarn {
+    /* color: #ffe08a; */
+    color: #ff8d46;
+}
+
+.LogErr {
+    /* color: #ba1a1a; */
+    color: #e42d1f;
+    font-weight: bold;
+}
+
+.LogCritical {
+    /* color: #ffe08a; */
+    color: #ff8d46;
+    font-weight: bold;
+}
+
+#logFilterSelect {
+    height: 32px;
+    margin-left: 4px;
+}

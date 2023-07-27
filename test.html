@@ -1,0 +1,35 @@
+<html>
+   <body>
+   
+      <h1> Server updates</h1>
+      <button type="button" id="btn1">Click Me!</button>
+      <div id="result"></div>
+      <div id="bottom"></div>
+      <script>
+        var btn = document.getElementById("btn1");
+        var  connection = new WebSocket('ws://localhost:9001');
+        
+        btn.onclick = function(event) {
+            connection.send("123")
+        }
+
+        connection.onmessage = function(event) {
+            var isAtBottom = false;
+
+            if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+                // you're at the bottom of the page
+                isAtBottom = true;
+            }
+            
+            document.getElementById("result").innerHTML += event.data + "<br>";
+
+            if (isAtBottom)
+            {
+
+              document.getElementById( 'bottom' ).scrollIntoView();
+            }
+        }
+
+      </script>
+   </body>
+</html>
