@@ -31,16 +31,18 @@ void Start()
 #include <http_parser.h>
 
 #include <webutil.h>
-#include "websrc/index.html.c"
-#include "websrc/content.css.c"
-#include "websrc/control.css.c"
-#include "websrc/control.js.c"
-#include "websrc/firmware.css.c"
-#include "websrc/fixheight.js.c"
-#include "websrc/log.css.c"
-#include "websrc/menu.css.c"
-#include "websrc/page.css.c"
-#include "websrc/page.js.c"
+// #include "websrc/index.html.c"
+// #include "websrc/content.css.c"
+// #include "websrc/control.css.c"
+// #include "websrc/control.js.c"
+// #include "websrc/firmware.css.c"
+// #include "websrc/fixheight.js.c"
+// #include "websrc/log.css.c"
+// #include "websrc/menu.css.c"
+// #include "websrc/page.css.c"
+// #include "websrc/page.js.c"
+
+#include "websrc/generated/webSrc.h"
 
 struct WebAppInfo
 {
@@ -48,23 +50,37 @@ struct WebAppInfo
     const char *ext;
     const char *data;
     unsigned size;
+    bool isCompress;
 };
 
+// WebAppInfo webAppInfo[] = {
+//     {"/", NULL, index_html, sizeof(index_html)-1},
+//     {"/css/content.css", "css", content_css, sizeof(content_css)-1},
+//     {"/css/control.css", "css", control_css, sizeof(control_css)-1},
+//     {"/css/firmware.css", "css", firmware_css, sizeof(firmware_css)-1},
+//     {"/css/log.css", "css", log_css, sizeof(log_css)-1},
+//     {"/css/menu.css", "css", menu_css, sizeof(menu_css)-1},
+//     {"/css/page.css", "css", page_css, sizeof(page_css)-1},
+//     {"/js/control.js", "js", control_js, sizeof(control_js)-1},
+//     {"/js/fixheight.js", "js", fixheight_js, sizeof(fixheight_js)-1},
+//     {"/js/page.js", "js", page_js, sizeof(page_js)-1},
+// };
+
 WebAppInfo webAppInfo[] = {
-    {"/", NULL, index_html, sizeof(index_html)-1},
-    {"/css/content.css", "css", content_css, sizeof(content_css)-1},
-    {"/css/control.css", "css", control_css, sizeof(control_css)-1},
-    {"/css/firmware.css", "css", firmware_css, sizeof(firmware_css)-1},
-    {"/css/log.css", "css", log_css, sizeof(log_css)-1},
-    {"/css/menu.css", "css", menu_css, sizeof(menu_css)-1},
-    {"/css/page.css", "css", page_css, sizeof(page_css)-1},
-    {"/js/control.js", "js", control_js, sizeof(control_js)-1},
-    {"/js/fixheight.js", "js", fixheight_js, sizeof(fixheight_js)-1},
-    {"/js/page.js", "js", page_js, sizeof(page_js)-1},
+    {"/", NULL, index_html, sizeof(index_html), true},
+    {"/css/content.css", "css", content_css, sizeof(content_css), true},
+    {"/css/control.css", "css", control_css, sizeof(control_css), true},
+    {"/css/firmware.css", "css", firmware_css, sizeof(firmware_css), true},
+    {"/css/log.css", "css", log_css, sizeof(log_css), true},
+    {"/css/menu.css", "css", menu_css, sizeof(menu_css), true},
+    {"/css/page.css", "css", page_css, sizeof(page_css), true},
+    {"/js/control.js", "js", control_js, sizeof(control_js), true},
+    {"/js/fixheight.js", "js", fixheight_js, sizeof(fixheight_js), true},
+    {"/js/page.js", "js", page_js, sizeof(page_js), true},
 };
 
 char notfound_html[] =
-	"<html> \
+    "<html> \
 	<head> \
 		<title>404</title> \
 		<style type=\"text/css\"> \
@@ -78,11 +94,11 @@ char notfound_html[] =
 	</body> \
 	</html>";
 
-WebAppInfo notFoundHtmlInfo = {"", NULL, notfound_html, sizeof(notfound_html)-1};
+WebAppInfo notFoundHtmlInfo = {"", NULL, notfound_html, sizeof(notfound_html) - 1, false};
 
-WebAppInfo* getHttpSrc(const char *fileName)
+WebAppInfo *getHttpSrc(const char *fileName)
 {
-    for (size_t i = 0; i < sizeof(webAppInfo)/sizeof(WebAppInfo); i++)
+    for (size_t i = 0; i < sizeof(webAppInfo) / sizeof(WebAppInfo); i++)
     {
         if (strcmp(fileName, webAppInfo[i].fileName) == 0)
         {
@@ -92,7 +108,6 @@ WebAppInfo* getHttpSrc(const char *fileName)
 
     return &notFoundHtmlInfo;
 }
-
 
 http_parser httpParerInst;
 http_parser_settings setting;
@@ -139,14 +154,16 @@ int on_message_complete(http_parser *parser)
     {
         WebAppInfo *responseData = getHttpSrc(http_request_data.url);
 
-        int reponseLen = generate_http_header(reponse, responseData->ext, responseData->size);
+        int reponseLen = generate_http_header(
+            reponse,
+            responseData->ext,
+            responseData->isCompress,
+            responseData->size);
 
         send(http_request_data.sock, reponse, reponseLen, 0);
         send(http_request_data.sock, responseData->data, responseData->size, 0);
         send(http_request_data.sock, "\r\n", 2, 0);
-
     }
-
 
     return 0;
 }
@@ -190,14 +207,14 @@ void process_response(int new_socket)
     http_parser_init(&httpParerInst, HTTP_REQUEST);
     http_request_data.sock = new_socket;
 
-    do {
+    do
+    {
         valread = recv(new_socket, buffer, 1024, 0);
         int len = http_parser_execute(&httpParerInst, &setting, buffer, valread);
 
     } while (valread > 0);
 
     // send(new_socket, hello, strlen(hello), 0);
-
 }
 
 int main(int argc, char const *argv[])
@@ -260,7 +277,7 @@ int main(int argc, char const *argv[])
         }
 
         printf("new connect\n");
-        
+
         process_response(new_socket);
         // closing the connected socket
         printf("close connect\n");

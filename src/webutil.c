@@ -28,6 +28,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 // #include "lwip_example_webserver.h"
 
 #define HTTP_ARG_ARRAY_SIZE 1000
@@ -58,7 +59,7 @@ void extract_file_name(char *filename, char *req, int rlen, int maxlen)
 	if (req[offset] == '/')
 		offset++;
 
-	fstart = req + offset;   /* start marker */
+	fstart = req + offset; /* start marker */
 
 	/* file name finally ends in a space */
 	while (req[offset] != ' ')
@@ -66,7 +67,8 @@ void extract_file_name(char *filename, char *req, int rlen, int maxlen)
 
 	fend = req + offset - 1; /* end marker */
 
-	if (fend < fstart) {
+	if (fend < fstart)
+	{
 		strcpy(filename, "index.htm");
 		return;
 	}
@@ -74,17 +76,18 @@ void extract_file_name(char *filename, char *req, int rlen, int maxlen)
 	/* if there is something wrong with the URL & we ran for for more than
 	 * the HTTP buffer length (offset > rlen) or the filename is too long,
 	 * throw 404 error */
-	if (offset > rlen || fend - fstart > maxlen) {
+	if (offset > rlen || fend - fstart > maxlen)
+	{
 		*fend = 0;
 		strcpy(filename, "404.htm");
 		printf("Request filename is too long, length = %d, file = %s (truncated), max = %d\r\n",
-				(int)(fend - fstart), fstart, maxlen);
+			   (int)(fend - fstart), fstart, maxlen);
 		return;
 	}
 
 	/* copy over the filename */
-	strncpy(filename, fstart, fend-fstart+1);
-	filename[fend-fstart+1] = 0;
+	strncpy(filename, fstart, fend - fstart + 1);
+	filename[fend - fstart + 1] = 0;
 
 	/* if last character is a '/', append index.htm */
 	if (*fend == '/')
@@ -95,7 +98,8 @@ char *get_file_extension(char *fname)
 {
 	char *fext = fname + strlen(fname) - 1;
 
-	while (fext > fname) {
+	while (fext > fname)
+	{
 		if (*fext == '.')
 			return fext + 1;
 		fext--;
@@ -104,16 +108,16 @@ char *get_file_extension(char *fname)
 	return NULL;
 }
 
-int generate_http_header(char *buf, const char *fext, int fsize)
+int generate_http_header(char *buf, const char *fext, bool isCompress, int fsize)
 {
 	char lbuf[40];
 
 	strcpy(buf, "HTTP/1.1 200 OK\r\nContent-Type: ");
 
 	if (fext == NULL)
-		strcat(buf, "text/html");	/* for unknown types */
+		strcat(buf, "text/html"); /* for unknown types */
 	else if (!strncmp(fext, "htm", 3))
-		strcat(buf, "text/html");	/* html */
+		strcat(buf, "text/html"); /* html */
 	else if (!strncmp(fext, "jpg", 3))
 		strcat(buf, "image/jpeg");
 	else if (!strncmp(fext, "gif", 3))
@@ -127,9 +131,15 @@ int generate_http_header(char *buf, const char *fext, int fsize)
 	else if (!strncmp(fext, "css", 2))
 		strcat(buf, "text/css");
 	else
-		strcat(buf, "text/plain");	/* for unknown types */
+		strcat(buf, "text/plain"); /* for unknown types */
 	strcat(buf, "\r\n");
 
+	if (isCompress)
+	{
+		strcat(buf, "content-encoding: gzip\r\n");
+	}
+	
+	// sprintf(lbuf, "content-encoding: gzip");
 	sprintf(lbuf, "Content-length: %d", fsize);
 	strcat(buf, lbuf);
 	strcat(buf, "\r\n");
