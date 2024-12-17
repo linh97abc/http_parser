@@ -120,32 +120,24 @@ class WebFS():
 
     @staticmethod
     def GetExtByName(ext: str):
-        if ext == '.html':
-            return WebExt.html
-        if ext == '.css':
-            return WebExt.css
-        if ext == '.js':
-            return WebExt.js
-        if ext == '.csv':
-            return WebExt.csv
-        if ext == '.xml':
-            return WebExt.xml
-        if ext == '.jpg':
-            return WebExt.jpg
-        if ext == '.png':
-            return WebExt.png
-        if ext == '.gif':
-            return WebExt.gif
-        if ext == '.json':
-            return WebExt.json
-        if ext == '.zip':
-            return WebExt.zip
-        if ext == '.pdf':
-            return WebExt.pdf
-        if ext == '.mp4':
-            return WebExt.mp4
-        if ext == '.webm':
-            return WebExt.webm
+        ext_to_name = {
+            '.html': WebExt.html,
+            '.css': WebExt.css,
+            '.js': WebExt.js,
+            '.csv': WebExt.csv,
+            '.xml': WebExt.xml,
+            '.jpg': WebExt.jpg,
+            '.png': WebExt.png,
+            '.gif': WebExt.gif,
+            '.json': WebExt.json,
+            '.zip': WebExt.zip,
+            '.pdf': WebExt.pdf,
+            '.mp4': WebExt.mp4,
+            '.webm': WebExt.webm,
+        }
+
+        if ext in ext_to_name:
+            return ext_to_name[ext]
         return WebExt.unknow
 
     def Gen(self):
