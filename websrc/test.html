@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Server</title>
+
+    <!-- get css files -->
+    <link rel="stylesheet" type="text/css" href="css/page.css" />
+    <link rel="stylesheet" type="text/css" href="css/menu.css" />
+    <link rel="stylesheet" type="text/css" href="css/content.css" />
+    <link rel="stylesheet" type="text/css" href="css/firmware.css" />
+    <link rel="stylesheet" type="text/css" href="css/control.css" />
+    <link rel="stylesheet" type="text/css" href="css/log.css" />
+
+    <!-- get cash, OR OTHER jquery alternative -->
+    <script src="js/fixheight.js"></script>
+    <script src="js/control.js"></script>
+    <script src="js/page.js"></script>
+
+
+</head>
+
+<body>
+
+    <!-- MENU MARKUP -->
+    <div id="menu">
+        <div>
+            <h2 id="TitleDevice">Project</h2>
+
+        </div>
+
+        <div id="modePanel">
+            <label for="modeDropBox"></label>
+            <select name="modeDropBox" id="modeDropBox">
+                <option value=0>Mode 0</option>
+                <option value=1>Mode 1</option>
+                <option value=2>Mode 2</option>
+                <option value=3>Mode 3</option>
+                <option value=4>Mode 4</option>
+
+            </select>
+        </div>
+
+        <div id="divVersion">
+            <p style="margin-right: 16px">
+                Version: 1.0
+            </p>
+            <p style="margin-right: 8px">
+                Timestamp:
+            </p>
+            <p style="margin-right: 8px" id="timeStamp">
+                1234567890
+            </p>
+
+        </div>
+
+    </div>
+    <!-- END MENU MARKUP -->
+
+
+    <!-- CONTENT GRID-AREA -->
+    <div class="full-height" id="content">
+
+        <div id="Firmware">
+            <h3 class="title">Image</h3>
+            <div class="FirmwareSection" id="FwImage">
+                <!-- <div>
+                    <input type="file" id="fwImg">
+
+                </div>
+                <button id="progBtn">Program</button> -->
+
+                <!-- <form action="/api/upload"  method="post" enctype="multipart/form-data"> -->
+                    <form action="/api/upload"  method="post" enctype="text-plain"></form>
+                    <input type="file" id="fwImg" name="filename">
+                    <input type="submit">
+                  </form>
+
+
+                <progress></progress>
+
+            </div>
+
+            <h3 class="title">Config</h3>
+            <div id="config">
+                This is config
+            </div>
+        </div>
+        <div id="control">
+            <div id="LedPanel">
+                <h3 class="title">LED</h3>
+                <div class="LedRow">
+                    <h4 class="RowIndex">1</h4>
+                    <div>
+                        <button class="LedBtn " id="ledBtn0_1">BTN_1</button>
+                        <button class="LedBtn ">BTN_2</button>
+                        <button class="LedBtn ">BTN_3</button>
+                        <button class="LedBtn">BTN_4</button>
+                        <button class="LedBtn">BTN_5</button>
+                        <button class="LedBtn">BTN_6</button>
+                        <button class="LedBtn">BTN_7</button>
+                        <button class="LedBtn">BTN_8</button>
+                        <button class="LedBtn">BTN_9</button>
+                        <button class="LedBtn">BTN_10</button>
+                        <button class="LedBtn">BTN_11</button>
+                        <button class="LedBtn">BTN_12</button>
+
+                    </div>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">2</h4>
+                    <div>
+                        <button class="LedBtn">BTN_1</button>
+                        <button class="LedBtn">BTN_2</button>
+                        <button class="LedBtn">BTN_3</button>
+                        <button class="LedBtn">BTN_4</button>
+                        <button class="LedBtn">BTN_5</button>
+                        <button class="LedBtn">BTN_6</button>
+                        <button class="LedBtn">BTN_7</button>
+                        <button class="LedBtn">BTN_8</button>
+                        <button class="LedBtn">BTN_9</button>
+                        <button class="LedBtn">BTN_10</button>
+                        <button class="LedBtn">BTN_11</button>
+                        <button class="LedBtn">BTN_12</button>
+
+                    </div>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">3</h4>
+                    <div>
+                        <button class="LedBtn">BTN_1</button>
+                        <button class="LedBtn">BTN_2</button>
+                        <button class="LedBtn">BTN_3</button>
+                        <button class="LedBtn">BTN_4</button>
+                        <button class="LedBtn">BTN_5</button>
+                        <button class="LedBtn">BTN_6</button>
+                        <button class="LedBtn">BTN_7</button>
+                        <button class="LedBtn">BTN_8</button>
+                        <button class="LedBtn">BTN_9</button>
+                        <button class="LedBtn">BTN_10</button>
+                        <button class="LedBtn">BTN_11</button>
+                        <button class="LedBtn">BTN_12</button>
+
+                    </div>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">4</h4>
+                    <div>
+                        <button class="LedBtn">BTN_1</button>
+                        <button class="LedBtn">BTN_2</button>
+                        <button class="LedBtn">BTN_3</button>
+                        <button class="LedBtn">BTN_4</button>
+                        <button class="LedBtn">BTN_5</button>
+                        <button class="LedBtn">BTN_6</button>
+                        <button class="LedBtn">BTN_7</button>
+                        <button class="LedBtn">BTN_8</button>
+                        <button class="LedBtn">BTN_9</button>
+                        <button class="LedBtn">BTN_10</button>
+                        <button class="LedBtn">BTN_11</button>
+                        <button class="LedBtn">BTN_12</button>
+
+                    </div>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">5</h4>
+                    <div>
+                        <button class="LedBtn">BTN_1</button>
+                        <button class="LedBtn">BTN_2</button>
+                        <button class="LedBtn">BTN_3</button>
+                        <button class="LedBtn">BTN_4</button>
+                        <button class="LedBtn">BTN_5</button>
+                        <button class="LedBtn">BTN_6</button>
+                        <button class="LedBtn">BTN_7</button>
+                        <button class="LedBtn">BTN_8</button>
+                        <button class="LedBtn">BTN_9</button>
+                        <button class="LedBtn">BTN_10</button>
+                        <button class="LedBtn">BTN_11</button>
+                        <button class="LedBtn">BTN_12</button>
+
+                    </div>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">6</h4>
+                    <div>
+                        <button class="LedBtn">BTN_1</button>
+                        <button class="LedBtn">BTN_2</button>
+                        <button class="LedBtn">BTN_3</button>
+                        <button class="LedBtn">BTN_4</button>
+                        <button class="LedBtn">BTN_5</button>
+                        <button class="LedBtn">BTN_6</button>
+                        <button class="LedBtn">BTN_7</button>
+                        <button class="LedBtn">BTN_8</button>
+                        <button class="LedBtn">BTN_9</button>
+                        <button class="LedBtn">BTN_10</button>
+                        <button class="LedBtn">BTN_11</button>
+                        <button class="LedBtn">BTN_12</button>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="DIPanel">
+                <h3 class="title">DI</h3>
+
+                <div class="LedRow q1">
+                    <h4 class="RowIndex">1</h4>
+                    <button class="DIBtn di1">DI1</button>
+                    <button class="DIBtn di2">DI2</button>
+                    <button class="DIBtn di3">DI3</button>
+                    <button class="DIBtn di4">DI4</button>
+                    <button class="DIBtn di5">DI5</button>
+                    <button class="DIBtn di6">DI6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">2</h4>
+                    <button class="DIBtn">DI1</button>
+                    <button class="DIBtn">DI2</button>
+                    <button class="DIBtn">DI3</button>
+                    <button class="DIBtn">DI4</button>
+                    <button class="DIBtn">DI5</button>
+                    <button class="DIBtn">DI6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">3</h4>
+
+                    <button class="DIBtn">DI1</button>
+                    <button class="DIBtn">DI2</button>
+                    <button class="DIBtn">DI3</button>
+                    <button class="DIBtn">DI4</button>
+                    <button class="DIBtn">DI5</button>
+                    <button class="DIBtn">DI6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">4</h4>
+                    <button class="DIBtn">DI1</button>
+                    <button class="DIBtn">DI2</button>
+                    <button class="DIBtn">DI3</button>
+                    <button class="DIBtn">DI4</button>
+                    <button class="DIBtn">DI5</button>
+                    <button class="DIBtn">DI6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">5</h4>
+                    <button class="DIBtn">DI1</button>
+                    <button class="DIBtn">DI2</button>
+                    <button class="DIBtn">DI3</button>
+                    <button class="DIBtn">DI4</button>
+                    <button class="DIBtn">DI5</button>
+                    <button class="DIBtn">DI6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">6</h4>
+                    <button class="DIBtn">DI1</button>
+                    <button class="DIBtn">DI2</button>
+                    <button class="DIBtn">DI3</button>
+                    <button class="DIBtn">DI4</button>
+                    <button class="DIBtn">DI5</button>
+                    <button class="DIBtn">DI6</button>
+                </div>
+            </div>
+
+            <div id="DOPanel">
+                <h3 class="title">DO</h3>
+                <div class="LedRow">
+                    <h4 class="RowIndex">1</h4>
+                    <button class="DOBtn">DO1</button>
+                    <button class="DOBtn">DO2</button>
+                    <button class="DOBtn">DO3</button>
+                    <button class="DOBtn">DO4</button>
+                    <button class="DOBtn">DO5</button>
+                    <button class="DOBtn">DO6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">2</h4>
+                    <button class="DOBtn">DO1</button>
+                    <button class="DOBtn">DO2</button>
+                    <button class="DOBtn">DO3</button>
+                    <button class="DOBtn">DO4</button>
+                    <button class="DOBtn">DO5</button>
+                    <button class="DOBtn">DO6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">3</h4>
+
+                    <button class="DOBtn">DO1</button>
+                    <button class="DOBtn">DO2</button>
+                    <button class="DOBtn">DO3</button>
+                    <button class="DOBtn">DO4</button>
+                    <button class="DOBtn">DO5</button>
+                    <button class="DOBtn">DO6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">4</h4>
+                    <button class="DOBtn">DO1</button>
+                    <button class="DOBtn">DO2</button>
+                    <button class="DOBtn">DO3</button>
+                    <button class="DOBtn">DO4</button>
+                    <button class="DOBtn">DO5</button>
+                    <button class="DOBtn">DO6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">5</h4>
+                    <button class="DOBtn">DO1</button>
+                    <button class="DOBtn">DO2</button>
+                    <button class="DOBtn">DO3</button>
+                    <button class="DOBtn">DO4</button>
+                    <button class="DOBtn">DO5</button>
+                    <button class="DOBtn">DO6</button>
+                </div>
+
+                <div class="LedRow">
+                    <h4 class="RowIndex">6</h4>
+                    <button class="DOBtn">DO1</button>
+                    <button class="DOBtn">DO2</button>
+                    <button class="DOBtn">DO3</button>
+                    <button class="DOBtn">DO4</button>
+                    <button class="DOBtn">DO5</button>
+                    <button class="DOBtn">DO6</button>
+                </div>
+            </div>
+
+            <div id="RS485Panel">
+                <h3 class="title">Serial</h3>
+                <div class="LedRow">
+                    <h4 class="RowIndex"></h4>
+                    <button class="DIBtn">1</button>
+                    <button class="DIBtn">2</button>
+                    <button class="DIBtn">3</button>
+                    <button class="DIBtn">4</button>
+                    <button class="DIBtn">5</button>
+                    <button class="DIBtn">6</button>
+                </div>
+
+            </div>
+
+            <div>
+                <br>
+            </div>
+        </div>
+
+        <div id="log">
+            <div id="logToolPanel">
+                <h3 class="title" >LOG</h3>
+                <div id="logToolBox">
+                    <!-- <button class="logToolBtn" onclick="LogFilter()"><u>Filter</u></button> -->
+
+                    <label for="logFilterSelect">Filter</label>
+                    <select name="logFilterSelect" id="logFilterSelect" onchange="LogFilter(this.value)">
+                        <option value=0>All</option>
+                        <option value=1>DEBUG</option>
+                        <option value=2>INFO</option>
+                        <option value=3>WARNING</option>
+                        <option value=4>ERROR</option>
+                        <option value=5>CRITICAL</option>
+        
+                    </select>
+
+                    <button class="logToolBtn" onclick="LogScrollUp()"><u>Up</u></button>
+                    <button class="logToolBtn" onclick="LogScrollDown()"><u>Down</u></button>
+                    
+                    <a href="/api/log" download="log">
+                        <button class="logToolBtn"><u>Save</u></button>
+                      </a>
+                    
+
+                </div>
+            </div>
+
+            <div id="logContent">
+                
+                <!-- <p >12:34:21  INFO     - This is log info</p>
+                <p class="LogWarn">12:34:21  ERROR    - This is log error snb </p>
+                <p class="LogErr">12:34:21  WARN     - This is log warning</p>
+                <p>12:34:21  DEBUG    - This is log debug</p>
+                <p class="LogCritical">12:34:21  CRITICAL - This is log CRITICAL</p> -->
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+    <!-- END CONTENT GRID-AREA -->
+
+    <!-- <script src="js/control.js"></script> -->
+</body>
+
+</html>

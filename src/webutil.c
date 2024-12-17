@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <webutil.h>
 // #include "lwip_example_webserver.h"
 
 #define HTTP_ARG_ARRAY_SIZE 1000
@@ -108,37 +109,38 @@ char *get_file_extension(char *fname)
 	return NULL;
 }
 
-int generate_http_header(char *buf, const char *fext, bool isCompress, int fsize)
+static const char *DictExt[] =
+	{
+		"text/plain",
+		"text/html",
+		"text/css",
+		"text/javascript",
+		"text/csv",
+		"text/xml",
+		"image/jpeg ",
+		"image/png ",
+		"image/gif",
+		"application/json",
+		"application/zip",
+		"application/pdf",
+		"video/mp4",
+		"video/webm",
+};
+
+int generate_http_header(char *buf, enum WebUtilFileExt fext, bool isCompress, int fsize)
 {
 	char lbuf[40];
 
 	strcpy(buf, "HTTP/1.1 200 OK\r\nContent-Type: ");
 
-	if (fext == NULL)
-		strcat(buf, "text/html"); /* for unknown types */
-	else if (!strncmp(fext, "htm", 3))
-		strcat(buf, "text/html"); /* html */
-	else if (!strncmp(fext, "jpg", 3))
-		strcat(buf, "image/jpeg");
-	else if (!strncmp(fext, "gif", 3))
-		strcat(buf, "image/gif");
-	else if (!strncmp(fext, "jsn", 3))
-		strcat(buf, "application/json");
-	else if (!strncmp(fext, "js", 2))
-		strcat(buf, "application/javascript");
-	else if (!strncmp(fext, "pdf", 2))
-		strcat(buf, "application/pdf");
-	else if (!strncmp(fext, "css", 2))
-		strcat(buf, "text/css");
-	else
-		strcat(buf, "text/plain"); /* for unknown types */
+	strcat(buf, DictExt[fext]);
 	strcat(buf, "\r\n");
 
 	if (isCompress)
 	{
 		strcat(buf, "content-encoding: gzip\r\n");
 	}
-	
+
 	// sprintf(lbuf, "content-encoding: gzip");
 	sprintf(lbuf, "Content-length: %d", fsize);
 	strcat(buf, lbuf);
@@ -149,21 +151,3 @@ int generate_http_header(char *buf, const char *fext, bool isCompress, int fsize
 
 	return strlen(buf);
 }
-
-// http_arg *palloc_arg()
-// {
-// 	http_arg *a = &(httpArgArray[httpArgArrayIndex]);
-// 	httpArgArrayIndex++;
-// 	if (httpArgArrayIndex == HTTP_ARG_ARRAY_SIZE)
-// 		httpArgArrayIndex = 0;
-// 	a->count = p_arg_count++;
-// 	memset(&a->fil, 0, sizeof(a->fil));
-// 	a->fsize = 0;
-
-// 	return a;
-// }
-
-// void pfree_arg(http_arg *arg)
-// {
-// 	;
-// }

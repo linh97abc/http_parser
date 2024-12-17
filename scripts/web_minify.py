@@ -1,3 +1,5 @@
+import enum
+import struct
 import rjsmin
 import csscompressor
 from lxml import etree, html
@@ -20,8 +22,7 @@ class MakeGzipFile():
         hexlist = map(''.join, zip(*[iter(hexdata)] * 2))
         return (MakeGzipFile.get_nice_string(hexlist) + ',\n')
 
-    @staticmethod
-    def Gen(data, out):
+    def GenData(data):
         with io.BytesIO() as content:
             with gzip.GzipFile(fileobj=content, mode='w',
                                mtime=0,
@@ -30,9 +31,7 @@ class MakeGzipFile():
 
             content.seek(0)
 
-            with open(out, 'w') as f:
-                for chunk in iter(lambda: content.read(8), b''):
-                    f.write(MakeGzipFile.make_hex(chunk))
+            return content.read()
 
 
 class WebFileMinify():
@@ -81,62 +80,113 @@ class JsMinify(WebFileMinify):
         return rjsmin.jsmin(input)
 
 
-class WebMinify():
-    def __init__(self, filePath: str):
-        self.filePath = filePath
-        self.ext = os.path.splitext(self.filePath)[1]
-        self.minifier = None
-        if (self.ext == '.html'):
-            self.minifier = HtmlMinify(filePath)
-        elif (self.ext == '.css'):
-            self.minifier = CssMinify(filePath)
-        elif (self.ext == '.js'):
-            self.minifier = JsMinify(filePath)
-        else:
-            self.minifier = RawMinify(filePath)
+def MinifyBin(filePath: str) -> bytes:
 
-        tmp_path = re.sub(r'[\\/]', '_',  self.filePath).strip()
-        self.out_path = tmp_path
+    ext = os.path.splitext(filePath)[1]
+    minifier = None
+    if (ext == '.html'):
+        minifier = HtmlMinify(filePath)
+    elif (ext == '.css'):
+        minifier = CssMinify(filePath)
+    elif (ext == '.js'):
+        minifier = JsMinify(filePath)
+    else:
+        minifier = RawMinify(filePath)
 
-    def Gen(self, out: str):
-        data = self.minifier.MinifyBin()
-        out_path = os.path.join(out, self.GetOutFileName())
-        MakeGzipFile.Gen(data, out_path)
-
-    def GetOutVarName(self):
-        return self.out_path.replace('.', '_')
-
-    def GetOutFileName(self):
-        return self.out_path + '.inc'
+    return minifier.MinifyBin()
 
 
-class WebSourceGenGzip():
-    def __init__(self, out: str, list_file):
-        self.outPath = out
-        self.list_file = list_file
+class WebExt(enum.Enum):
+    unknow = 0
+    html = 1
+    css = 2
+    js = 3
+    csv = 4
+    xml = 5
+    jpg = 6
+    png = 7
+    gif = 8
+    json = 9
+    zip = 10
+    pdf = 11
+    mp4 = 12
+    webm = 13
+
+
+class WebFS():
+    def __init__(self, out_dir, list_files):
+        self.out_path = os.path.join(out_dir, 'webfs.inc')
+        self.list_files = list_files
+
+    @staticmethod
+    def GetExtByName(ext: str):
+        if ext == '.html':
+            return WebExt.html
+        if ext == '.css':
+            return WebExt.css
+        if ext == '.js':
+            return WebExt.js
+        if ext == '.csv':
+            return WebExt.csv
+        if ext == '.xml':
+            return WebExt.xml
+        if ext == '.jpg':
+            return WebExt.jpg
+        if ext == '.png':
+            return WebExt.png
+        if ext == '.gif':
+            return WebExt.gif
+        if ext == '.json':
+            return WebExt.json
+        if ext == '.zip':
+            return WebExt.zip
+        if ext == '.pdf':
+            return WebExt.pdf
+        if ext == '.mp4':
+            return WebExt.mp4
+        if ext == '.webm':
+            return WebExt.webm
+        return WebExt.unknow
 
     def Gen(self):
-        with open(os.path.join(self.outPath, "webSrc.h"), 'w') as f:
-            for i in self.list_file:
-                webMinify = WebMinify(i)
-                webMinify.Gen(self.outPath)
+        with io.BytesIO() as out_data:
+            for i in self.list_files:
+                f_content = MinifyBin(i)
+                f_content = MakeGzipFile.GenData(f_content)
+                self.AddFileContent(out_data, i, f_content)
 
-                f.write(
-                    f"static const char {webMinify.GetOutVarName()}[] = " +
-                    '{\n#include "' +
-                    webMinify.GetOutFileName() +
-                    '"\n};\n')
+            out_data.seek(0)
+            with open(self.out_path, 'w') as f:
+                for chunk in iter(lambda: out_data.read(8), b''):
+                    f.write(MakeGzipFile.make_hex(chunk))
+
+            if False:
+                out_data.seek(0)
+                with open(self.out_path + '.bin', 'wb') as f:
+                    f.write(out_data.read())
+
+    def AddFileContent(self, stream, f_name: str, f_content: bytes):
+        ext = os.path.splitext(f_name)[1]
+        h = struct.pack('IB',
+                        len(f_content),
+                        __class__.GetExtByName(ext).value)
+
+        data = h + f_name.encode() + b'\x00' + f_content
+        stream.write(data)
 
 
-WebSourceGenGzip('generated', [
+listFiles = [
     'index.html',
-    'content.css',
-    'control.css',
-    'control.js',
-    'firmware.css',
-    'fixheight.js',
-    'log.css',
-    'menu.css',
-    'page.css',
-    'page.js',
-]).Gen()
+    'test.html',
+    'css/content.css',
+    'css/control.css',
+    'css/firmware.css',
+    'css/log.css',
+    'css/menu.css',
+    'css/page.css',
+    'js/control.js',
+    'js/fixheight.js',
+    'js/page.js',
+]
+
+WebFS('generated', listFiles).Gen()

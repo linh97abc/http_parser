@@ -7,14 +7,16 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <ws2spi.h>
-// #include <sys/types.h>
 
+// #include <sys/types.h>
 // #include <netinet/in.h>
+// #include <sys/socket.h>
+// #include <unistd.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <sys/socket.h>
-// #include <unistd.h>
+
 #define PORT 9000
 
 void Start()
@@ -31,83 +33,119 @@ void Start()
 #include <http_parser.h>
 
 #include <webutil.h>
-// #include "websrc/index.html.c"
-// #include "websrc/content.css.c"
-// #include "websrc/control.css.c"
-// #include "websrc/control.js.c"
-// #include "websrc/firmware.css.c"
-// #include "websrc/fixheight.js.c"
-// #include "websrc/log.css.c"
-// #include "websrc/menu.css.c"
-// #include "websrc/page.css.c"
-// #include "websrc/page.js.c"
 
-#include "websrc/generated/webSrc.h"
-
-struct WebAppInfo
-{
-    const char *fileName;
-    const char *ext;
-    const char *data;
-    unsigned size;
-    bool isCompress;
+static const uint8_t webFsSrc[] = {
+#include "websrc/generated/webfs.inc"
 };
 
-// WebAppInfo webAppInfo[] = {
-//     {"/", NULL, index_html, sizeof(index_html)-1},
-//     {"/css/content.css", "css", content_css, sizeof(content_css)-1},
-//     {"/css/control.css", "css", control_css, sizeof(control_css)-1},
-//     {"/css/firmware.css", "css", firmware_css, sizeof(firmware_css)-1},
-//     {"/css/log.css", "css", log_css, sizeof(log_css)-1},
-//     {"/css/menu.css", "css", menu_css, sizeof(menu_css)-1},
-//     {"/css/page.css", "css", page_css, sizeof(page_css)-1},
-//     {"/js/control.js", "js", control_js, sizeof(control_js)-1},
-//     {"/js/fixheight.js", "js", fixheight_js, sizeof(fixheight_js)-1},
-//     {"/js/page.js", "js", page_js, sizeof(page_js)-1},
-// };
-
-WebAppInfo webAppInfo[] = {
-    {"/", NULL, index_html, sizeof(index_html), true},
-    {"/css/content.css", "css", content_css, sizeof(content_css), true},
-    {"/css/control.css", "css", control_css, sizeof(control_css), true},
-    {"/css/firmware.css", "css", firmware_css, sizeof(firmware_css), true},
-    {"/css/log.css", "css", log_css, sizeof(log_css), true},
-    {"/css/menu.css", "css", menu_css, sizeof(menu_css), true},
-    {"/css/page.css", "css", page_css, sizeof(page_css), true},
-    {"/js/control.js", "js", control_js, sizeof(control_js), true},
-    {"/js/fixheight.js", "js", fixheight_js, sizeof(fixheight_js), true},
-    {"/js/page.js", "js", page_js, sizeof(page_js), true},
-};
-
-char notfound_html[] =
-    "<html> \
-	<head> \
-		<title>404</title> \
-		<style type=\"text/css\"> \
-		div#request {background: #eeeeee} \
-		</style> \
-	</head> \
-	<body> \
-	<h1>404 Page Not Found</h1> \
-	<div id=\"request\"> \
-	</div> \
-	</body> \
-	</html>";
-
-WebAppInfo notFoundHtmlInfo = {"", NULL, notfound_html, sizeof(notfound_html) - 1, false};
-
-WebAppInfo *getHttpSrc(const char *fileName)
+class WebFS
 {
-    for (size_t i = 0; i < sizeof(webAppInfo) / sizeof(WebAppInfo); i++)
+    const uint8_t *src;
+    unsigned srcLen;
+
+    static bool IsFileHasSamePath(const char *path, const char *s)
     {
-        if (strcmp(fileName, webAppInfo[i].fileName) == 0)
+        if (*path == '/')
         {
-            return &webAppInfo[i];
+            path++;
+        }
+
+        while (true)
+        {
+            if (*s == '\0')
+                return (*path == '\0') || (*path == '?');
+            if (*s != *path)
+                return false;
+
+            s++;
+            path++;
         }
     }
 
-    return &notFoundHtmlInfo;
-}
+public:
+    struct WebFileData
+    {
+        enum WebUtilFileExt ext;
+        const void *data;
+        unsigned size;
+        bool isCompress;
+    };
+
+    void GetWebFileData(const char *fpath, WebFileData &out)
+    {
+        const uint8_t *pdata = src;
+
+        static const char notfound_html[] =
+            "<html> \
+        <head> \
+            <title>404</title> \
+            <style type=\"text/css\"> \
+            div#request {background: #eeeeee} \
+            </style> \
+        </head> \
+        <body> \
+        <h1>404 Page Not Found</h1> \
+        <div id=\"request\"> \
+        </div> \
+        </body> \
+        </html>";
+
+        out.data = nullptr;
+
+        while (pdata < (this->src + this->srcLen))
+        {
+            uint32_t size;
+            memcpy(&size, pdata, 4);
+            pdata += 4;
+            auto ext = (enum WebUtilFileExt) * pdata;
+
+            if (ext >= WebUtilFileExt_end)
+            {
+                ext = WebUtilFileExt_unknow;
+            }
+
+            pdata++;
+
+            bool isThisFile = IsFileHasSamePath(fpath, (const char *)pdata);
+            while (*pdata != '\0')
+            {
+                pdata++;
+            }
+            pdata++;
+
+            if (isThisFile)
+            {
+                out.ext = ext;
+
+                out.data = pdata;
+                out.size = size;
+                out.isCompress = true;
+
+                puts("has file");
+                break;
+            }
+
+            pdata += size;
+        }
+
+        if (out.data == nullptr)
+        {
+            puts("file not found");
+            out.data = notfound_html;
+            out.size = sizeof(notfound_html) - 1;
+            out.isCompress = false;
+            out.ext = WebUtilFileExt_html;
+        }
+    }
+
+    void ImportSource(const void *data, unsigned len)
+    {
+        this->src = (const uint8_t *)data;
+        this->srcLen = len;
+    }
+};
+
+static WebFS webFs;
 
 http_parser httpParerInst;
 http_parser_settings setting;
@@ -152,17 +190,27 @@ int on_message_complete(http_parser *parser)
 
     if (parser->method == HTTP_GET)
     {
-        WebAppInfo *responseData = getHttpSrc(http_request_data.url);
+        WebFS::WebFileData responseData;
+
+        if ((http_request_data.url[0] == '/') && (http_request_data.url[1] == '\0'))
+        {
+            webFs.GetWebFileData("/index.html", responseData);
+        }
+        else
+        {
+
+            webFs.GetWebFileData(http_request_data.url, responseData);
+        }
 
         int reponseLen = generate_http_header(
             reponse,
-            responseData->ext,
-            responseData->isCompress,
-            responseData->size);
+            responseData.ext,
+            responseData.isCompress,
+            responseData.size);
 
         send(http_request_data.sock, reponse, reponseLen, 0);
-        send(http_request_data.sock, responseData->data, responseData->size, 0);
-        send(http_request_data.sock, "\r\n", 2, 0);
+        send(http_request_data.sock, (const char *)responseData.data, responseData.size, 0);
+        send(http_request_data.sock, "\r\n\r\n", 4, 0);
     }
 
     return 0;
@@ -219,6 +267,8 @@ void process_response(int new_socket)
 
 int main(int argc, char const *argv[])
 {
+    webFs.ImportSource(webFsSrc, sizeof(webFsSrc));
+
     Start();
 
     setting.on_message_begin = on_message_begin;
