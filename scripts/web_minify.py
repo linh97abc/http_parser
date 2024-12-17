@@ -163,7 +163,7 @@ class WebFS():
                         len(f_content),
                         __class__.GetExtByName(ext).value)
 
-        data = h + f_name.encode() + b'\x00' + f_content
+        data = f_name.encode() + b'\x00' + h + f_content
         stream.write(data)
 
 

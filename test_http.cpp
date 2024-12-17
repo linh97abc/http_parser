@@ -94,18 +94,6 @@ public:
 
         while (pdata < (this->src + this->srcLen))
         {
-            uint32_t size;
-            memcpy(&size, pdata, 4);
-            pdata += 4;
-            auto ext = (enum WebUtilFileExt) * pdata;
-
-            if (ext >= WebUtilFileExt_end)
-            {
-                ext = WebUtilFileExt_unknow;
-            }
-
-            pdata++;
-
             bool isThisFile = IsFileHasSamePath(fpath, (const char *)pdata);
             while (*pdata != '\0')
             {
@@ -113,8 +101,20 @@ public:
             }
             pdata++;
 
+            uint32_t size;
+            memcpy(&size, pdata, 4);
+            pdata += 4;
+
             if (isThisFile)
             {
+                auto ext = (enum WebUtilFileExt) * pdata;
+
+                if (ext >= WebUtilFileExt_end)
+                {
+                    ext = WebUtilFileExt_unknow;
+                }
+                pdata++;
+
                 out.ext = ext;
 
                 out.data = pdata;
@@ -124,6 +124,11 @@ public:
                 puts("has file");
                 break;
             }
+            else
+            {
+                pdata++;
+            }
+            
 
             pdata += size;
         }
