@@ -41,16 +41,29 @@ private:
             self->url.push_back(at[i]);
         }
 
+        if (parser->method == HTTP_POST)
+        {
+            self->OnParserCmdPost();
+        }
+
         return 0;
     }
 
-    static int on_body(http_parser *, const char *at, size_t length)
+    static int on_body(http_parser *parser, const char *at, size_t length)
     {
+        if (parser->method == HTTP_POST)
+        {
+            HttpParser *self = (HttpParser *)parser;
+            return self->OnHttpPostBody(at, length);
+        }
+
         return 0;
     }
 
+    virtual void OnParserCmdPost() { }
     virtual int OnHttpGet() { return 0; }
     virtual int OnHttpPostFinish() { return 0; }
+    virtual int OnHttpPostBody(const char *at, size_t length) { return 0; }
 
 public:
     HttpParser()
