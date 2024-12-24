@@ -7,7 +7,8 @@ find_package(HttpParser REQUIRED)
 
 add_definitions(-D__P_WIN32=1 -D_CRT_SECURE_NO_WARNINGS)
 
-add_executable(${CMAKE_PROJECT_NAME} "test_http.cpp")
+# add_executable(${CMAKE_PROJECT_NAME} "test_http.cpp")
+add_executable(${CMAKE_PROJECT_NAME} "test2.cpp")
 
 add_subdirectory(websrc)
 
