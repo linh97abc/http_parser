@@ -115,6 +115,7 @@ class WebExt(enum.Enum):
 
 class WebFS():
     def __init__(self, out_dir, list_files):
+        self.c_dumy_file = os.path.join(out_dir, 'webfs.inc.c')
         self.out_path = os.path.join(out_dir, 'webfs.inc')
         self.list_files = list_files
 
@@ -141,6 +142,9 @@ class WebFS():
         return WebExt.unknow
 
     def Gen(self):
+        with open(self.c_dumy_file, 'w') as f:
+            f.write('\n')
+
         with io.BytesIO() as out_data:
             for i in self.list_files:
                 f_content = MinifyBin(i)
@@ -167,18 +171,27 @@ class WebFS():
         stream.write(data)
 
 
-listFiles = [
-    'index.html',
-    'test.html',
-    'css/content.css',
-    'css/control.css',
-    'css/firmware.css',
-    'css/log.css',
-    'css/menu.css',
-    'css/page.css',
-    'js/control.js',
-    'js/fixheight.js',
-    'js/page.js',
-]
+# listFiles = [
+#     'index.html',
+#     'test.html',
+#     'css/content.css',
+#     'css/control.css',
+#     'css/firmware.css',
+#     'css/log.css',
+#     'css/menu.css',
+#     'css/page.css',
+#     'js/control.js',
+#     'js/fixheight.js',
+#     'js/page.js',
+# ]
 
-WebFS('generated', listFiles).Gen()
+# WebFS('generated', listFiles).Gen()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Web file minifier and gzip generator")
+    parser.add_argument('--output_dir', type=str, required=True, help='Output directory for the generated files')
+    parser.add_argument('input_files', type=str, nargs='+', help='List of input files to be processed')
+    args = parser.parse_args()
+
+    print(f"Generate webfs fileFS to {args.output_dir}")
+    WebFS(args.output_dir, args.input_files).Gen()

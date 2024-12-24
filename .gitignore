@@ -2,3 +2,6 @@
 /build/
 /out/
 .vscode
+*.pyc
+__pycache__
+*.log

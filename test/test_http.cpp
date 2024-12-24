@@ -35,7 +35,7 @@ void Start()
 #include <webutil.h>
 
 static const uint8_t webFsSrc[] = {
-#include "websrc/generated/webfs.inc"
+#include "webfs.inc"
 };
 
 class WebFS
