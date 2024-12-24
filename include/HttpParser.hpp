@@ -1,13 +1,63 @@
 #pragma once
 
 #include "http_parser.h"
+#include "webutil.h"
 #include <string>
 
 class HttpParser : http_parser
 {
+    char reponse[1024];
+
+public:
+    class IProcessPost
+    {
+    public:
+        virtual int OnHttpPostBody(const char *at, size_t length) = 0;
+        virtual int OnHttpPostFinish() = 0;
+        virtual ~IProcessPost() = default;
+    };
+
+    class ProcessPostDefault : public IProcessPost
+    {
+    public:
+        static ProcessPostDefault &GetInstance()
+        {
+            static ProcessPostDefault inst;
+            return inst;
+        }
+
+        virtual int OnHttpPostBody(const char *at, size_t length) override
+        {
+            return 0;
+        }
+
+        virtual int OnHttpPostFinish() override
+        {
+            return 0;
+        }
+    };
 
 protected:
     std::string url;
+
+    IProcessPost *processPost;
+
+    void SendResponse(
+        const char *content,
+        int content_len,
+        WebUtilFileExt ext,
+        bool isCompress)
+    {
+        int reponseLen = generate_http_header(
+            (char *)this->reponse,
+            ext,
+            isCompress,
+            content_len);
+
+        this->Send(this->reponse, reponseLen);
+        this->Send(content, content_len);
+        this->Send("\r\n", 2);
+    }
 
 private:
     static int on_headers_complete(http_parser *parser)
@@ -27,7 +77,7 @@ private:
 
         if (parser->method == HTTP_POST)
         {
-            return self->OnHttpPostFinish();
+            return self->processPost->OnHttpPostFinish();
         }
 
         return 0;
@@ -43,7 +93,7 @@ private:
 
         if (parser->method == HTTP_POST)
         {
-            self->OnParserCmdPost();
+            self->processPost = &self->OnParserCmdPost();
         }
 
         return 0;
@@ -54,16 +104,16 @@ private:
         if (parser->method == HTTP_POST)
         {
             HttpParser *self = (HttpParser *)parser;
-            return self->OnHttpPostBody(at, length);
+            return self->processPost->OnHttpPostBody(at, length);
         }
 
         return 0;
     }
 
-    virtual void OnParserCmdPost() { }
+    virtual int Send(const char *data, int len) = 0;
+
+    virtual IProcessPost &OnParserCmdPost() { return ProcessPostDefault::GetInstance(); }
     virtual int OnHttpGet() { return 0; }
-    virtual int OnHttpPostFinish() { return 0; }
-    virtual int OnHttpPostBody(const char *at, size_t length) { return 0; }
 
 public:
     HttpParser()
@@ -76,6 +126,8 @@ public:
 
         this->url.reserve(1024);
         this->url = "";
+
+        this->processPost = &ProcessPostDefault::GetInstance();
     }
 
     virtual ~HttpParser() = default;

@@ -158,22 +158,9 @@ class WebHandler : public HttpParser
 {
     int sock;
 
-    void SendResponse(
-        const char *content,
-        int content_len,
-        WebUtilFileExt ext,
-        bool isCompress)
+    virtual int Send(const char *data, int len) override
     {
-        char reponse[1024];
-        int reponseLen = generate_http_header(
-            (char *)reponse,
-            ext,
-            isCompress,
-            content_len);
-
-        send(this->sock, reponse, reponseLen, 0);
-        send(this->sock, content, content_len, 0);
-        send(this->sock, "\r\n\r\n", 4, 0);
+        return send(this->sock, data, len, 0);
     }
 
     virtual int OnHttpGet() override
